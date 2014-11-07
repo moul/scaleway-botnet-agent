@@ -5,11 +5,12 @@ VERSION ?= latest
 build:
 	docker build -t $(NAME):$(VERSION) .
 
-run:
+devel:
 	docker run \
-		-v /var/run/docker.sock:/var/run/docker.sock \
-		-e AMQP_USER=$(AMQP_USER) \
-		-it --rm $(NAME):$(VERSION)
+	    -v /var/run/docker.sock:/var/run/docker.sock \
+	    -e AMQP_USER=$(AMQP_USER) \
+            --privileged -i -t --rm \
+	    $(NAME):$(VERSION)
 
 sync_docker:
 	mv /usr/bin/docker /usr/bin/docker.orig
