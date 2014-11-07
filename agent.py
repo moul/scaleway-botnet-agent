@@ -1,24 +1,35 @@
-import shlex
-import redis
+import json
 import os
+import redis
+import shlex
 import sys
+import urllib
 from subprocess import Popen, PIPE, STDOUT, check_output
 
 from celery import Celery
 
 
-amqp_user = os.environ.get('AMQP_USER', 'guest:guest')
-backend_host = os.environ.get('MASTER', None)
-if not backend_host:
-    backend_host = check_output([
-        '/bin/bash', '-c', 'oc-metadata | grep manager | cut -d= -f3'
-    ]).strip()
-amqp = 'amqp://{}@{}:5672'.format(amqp_user, backend_host)
+metadata = json.loads(urllib.urlopen(
+    'http://169.254.42.42/conf?format=json'
+).read())
 
+# Configuration
+amqp_user = 'guest:guest'
+backend_host = '127.0.0.1'
+for tag in [tag.split('=') for tag in metadata.get('tags', [])]:
+    if tag[0] == 'manager':
+        backend_host = tag[1]
+    if tag[0] == 'amqp-user':
+        amqp_user = tag[1]
+amqp_user = os.environ.get('AMQP_USER', amqp_user)
+backend_host = os.environ.get('MASTER', backend_host)
+
+# Backends
+amqp = 'amqp://{}@{}:5672'.format(amqp_user, backend_host)
 celery = Celery('tasks', broker=amqp, backend=amqp)
 redis_instance = redis.Redis(host=backend_host)
 
-
+# run_command Task
 @celery.task(shared=True, time_limit=60)
 def run_command(command):
     task_id = run_command.request.id
