@@ -1,4 +1,4 @@
-NAME = ocs-botnet-worker
+NAME = moul/armhf-ocs-botnet-worker
 AMQP_USER ?= guest:guest
 VERSION ?= latest
 
