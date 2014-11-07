@@ -2,7 +2,7 @@ import shlex
 import redis
 import os
 import sys
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE, STDOUT, check_output
 
 from celery import Celery
 
@@ -10,7 +10,7 @@ from celery import Celery
 amqp_user = os.environ.get('AMQP_USER', 'guest:guest')
 backend_host = os.environ.get('MASTER', None)
 if not backend_host:
-    backend_host = subprocess.check_output([
+    backend_host = check_output([
         '/bin/bash', '-c', 'oc-metadata | grep manager | cut -d= -f3'
     ]).strip()
 amqp = 'amqp://{}@{}:5672'.format(amqp_user, backend_host)
