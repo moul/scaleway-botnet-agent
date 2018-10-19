@@ -1,6 +1,8 @@
 OCS Botnet - Agent
 ==================
 
+[![GuardRails badge](https://badges.production.guardrails.io/moul/scaleway-botnet-agent.svg)](https://www.guardrails.io)
+
 Agent that run commands sent from the OCS Botnet shell.
 
 OCS Botnet Shell
